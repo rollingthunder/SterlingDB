@@ -43,7 +43,9 @@ namespace Wintellect.Sterling.Core.Serialization
         public ISterlingSerializer CloneFor(ISterlingSerializer serializer)
         {
             var aggregateSerializer = new AggregateSerializer( _platformAdapter );
-            var query = from s in _serializers where !s.GetType().Equals(serializer.GetType()) select s;
+            var query = from s in _serializers 
+                        where !s.GetType().Equals(serializer.GetType()) 
+                        select s;
             foreach(var s in query)
             {
                 aggregateSerializer.AddSerializer(s);

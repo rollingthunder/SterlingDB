@@ -119,7 +119,8 @@ namespace Wintellect.Sterling.Core.Database
         /// </summary>
         /// <typeparam name="T">Type of the database</typeparam>
         /// <param name="reader">The reader with the backup information</param>
-        public async Task RestoreAsync<T>(BinaryReader reader) where T : BaseDatabaseInstance
+        public async Task RestoreAsync<T>(BinaryReader reader) 
+            where T : BaseDatabaseInstance
         {
             _RequiresActivation();
 
@@ -204,7 +205,8 @@ namespace Wintellect.Sterling.Core.Database
             }
         }
 
-        public ISterlingDatabaseInstance RegisterDatabase<T>( string instanceName = null ) where T : BaseDatabaseInstance
+        public ISterlingDatabaseInstance RegisterDatabase<T>( string instanceName = null ) 
+            where T : BaseDatabaseInstance, new()
         {
             return RegisterDatabase<T>( instanceName ?? "InMemory", null );
         }
@@ -214,7 +216,9 @@ namespace Wintellect.Sterling.Core.Database
         /// </summary>
         /// <typeparam name="T">The type of the database to register</typeparam>
         /// <typeparam name="TDriver">Register with a driver</typeparam>
-        public ISterlingDatabaseInstance RegisterDatabase<T, TDriver>( string instanceName ) where T : BaseDatabaseInstance where TDriver : ISterlingDriver
+        public ISterlingDatabaseInstance RegisterDatabase<T, TDriver>( string instanceName ) 
+            where T : BaseDatabaseInstance, new() 
+            where TDriver : ISterlingDriver, new()
         {
             var driver = (TDriver) Activator.CreateInstance(typeof (TDriver));
             return RegisterDatabase<T>( instanceName, driver);
@@ -226,7 +230,7 @@ namespace Wintellect.Sterling.Core.Database
         /// <typeparam name="T">The type of the database to register</typeparam>
         /// <typeparam name="TDriver">Register with a driver</typeparam>
         public ISterlingDatabaseInstance RegisterDatabase<T, TDriver>(string instanceName, TDriver driver)
-            where T : BaseDatabaseInstance
+            where T : BaseDatabaseInstance, new()
             where TDriver : ISterlingDriver
         {
             return RegisterDatabase<T>(instanceName, driver);
@@ -236,7 +240,8 @@ namespace Wintellect.Sterling.Core.Database
         ///     Register a database type with the system
         /// </summary>
         /// <typeparam name="T">The type of the database to register</typeparam>
-        public ISterlingDatabaseInstance RegisterDatabase<T>(string instanceName, ISterlingDriver driver) where T : BaseDatabaseInstance
+        public ISterlingDatabaseInstance RegisterDatabase<T>(string instanceName, ISterlingDriver driver) 
+            where T : BaseDatabaseInstance, new()
         {
             _RequiresActivation();
             _logManager.Log(SterlingLogLevel.Information, 
@@ -308,33 +313,32 @@ namespace Wintellect.Sterling.Core.Database
             return _databases[databaseName].Item2;
         }
 
-        /// <summary>
-        ///     Register a serializer with the system
-        /// </summary>
-        /// <typeparam name="T">The type of the serliaizer</typeparam>
-        public void RegisterSerializer<T>() where T : BaseSerializer
+        /// <see cref="ISterlingDatabase.RegisterSerializer{T}()"/>
+        public void RegisterSerializer<T>() 
+            where T : BaseSerializer, new()
         {
             if (_activated)
             {
                 throw new SterlingActivationException(string.Format("RegisterSerializer<{0}>", typeof(T).FullName));
             }
 
-            ISterlingSerializer serializer = null;
+            RegisterSerializer<T>(new T());
+        }
 
-            if ( typeof ( T ) == typeof ( AggregateSerializer ) )
+        /// <see cref="ISterlingDatabase.RegisterSerializer{T}(T)"/>
+        public void RegisterSerializer<T>(T serializer)
+            where T : BaseSerializer
+        {
+            if(serializer == null)
             {
-                serializer = new AggregateSerializer( this.Engine.PlatformAdapter );
+                throw new ArgumentNullException("serializer");
             }
-            else if ( typeof ( T ) == typeof ( ExtendedSerializer ) )
+            if (_activated)
             {
-                serializer = new ExtendedSerializer( this.Engine.PlatformAdapter );
-            }
-            else
-            {
-                serializer = (ISterlingSerializer) Activator.CreateInstance( typeof ( T ) );
+                throw new SterlingActivationException(string.Format("RegisterSerializer({0})", typeof(T).FullName));
             }
 
-            ( (AggregateSerializer) _serializer ).AddSerializer( serializer );
+            ((AggregateSerializer)_serializer).AddSerializer(serializer);
         }
 
         internal TableTypeResolver TypeResolver { get; set; }
@@ -366,9 +370,9 @@ namespace Wintellect.Sterling.Core.Database
 
         private void _LoadDefaultSerializers()
         {
-            // Load default serializes
+            // Load default serializers
             RegisterSerializer<DefaultSerializer>();  
-            RegisterSerializer<ExtendedSerializer>();
+            RegisterSerializer(new ExtendedSerializer(Engine.PlatformAdapter));
         }
 
         /// <summary>

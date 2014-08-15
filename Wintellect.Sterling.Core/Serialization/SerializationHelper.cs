@@ -175,7 +175,6 @@ namespace Wintellect.Sterling.Core.Serialization
             // build the cache for reflection
             if (!_propertyCache.ContainsKey(type))
             {
-                //_CacheProperties(type);
                 _CacheProperties(type);
             }
 
