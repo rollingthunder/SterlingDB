@@ -29,7 +29,7 @@ namespace Wintellect.Sterling.Core.Serialization
     }
 
     /// <summary>
-    ///     This class assists with the serialization and de-serialization of objects
+    ///     This class assists with the serialization and deserialization of objects
     /// </summary>
     /// <remarks>
     ///     This is where the heavy lifting is done, and likely where most of the tweaks make sense
@@ -373,7 +373,7 @@ namespace Wintellect.Sterling.Core.Serialization
         ///     Basically allows a node to be saved in a wrapper, and this is the entry
         ///     to unwrap it
         /// </summary>
-        /// <typeparam name="T">Type of the object to laod</typeparam>
+        /// <typeparam name="T">Type of the object to load</typeparam>
         /// <param name="br">The reader stream being accessed</param>
         /// <returns>The unwrapped object instance</returns>
         public T Load<T>(BinaryReader br)
@@ -396,7 +396,7 @@ namespace Wintellect.Sterling.Core.Serialization
         public object Load(Type type, object key, BinaryReader br, CycleCache cache)
         {
             _logManager.Log(SterlingLogLevel.Verbose,
-                            string.Format("Sterling is de-serializing type {0}", type.FullName), null);
+                            string.Format("Sterling is deserializing type {0}", type.FullName), null);
 
             if (_DeserializeNull(br))
             {
@@ -474,7 +474,7 @@ namespace Wintellect.Sterling.Core.Serialization
         }
 
         /// <summary>
-        /// Deserializes the next part in the BinaryReader and returns a KeyValuePair containing the property name as key van the deserialized object as value.
+        /// Deserializes the next part in the BinaryReader and returns a KeyValuePair containing the property name as key and the deserialized object as value.
         /// </summary>
         /// <param name="br">The binary reader</param>
         /// <param name="cache">The cycle cache</param>

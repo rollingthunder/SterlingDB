@@ -56,7 +56,7 @@ namespace Wintellect.Sterling.Core.Keys
         /// <summary>
         ///     Hash code
         /// </summary>
-        /// <returns>The has code of the key</returns>
+        /// <returns>The hash code of the key</returns>
         public override int GetHashCode()
         {
             return _hashCode;
